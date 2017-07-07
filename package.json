@@ -1,0 +1,15 @@
+{
+  "name": "leaflet-graticule",
+  "version": "0.0.1",
+  "description": "Lat/Lon Graticule for Leaflet map",
+  "main": "Leaflet.Graticule.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Leaflet/Leaflet.Graticule.git"
+  },
+  "author": "cloudybay",
+  "bugs": {
+    "url": "https://github.com/Leaflet/Leaflet.Graticule/issues"
+  },
+  "homepage": "https://github.com/Leaflet/Leaflet.Graticule"
+}
