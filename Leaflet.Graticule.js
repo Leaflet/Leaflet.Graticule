@@ -13,6 +13,8 @@ L.LatLngGraticule = L.Layer.extend({
         font: '12px Verdana',
         lngLineCurved: 0,
         latLineCurved: 0,
+        dmd: false, // Labels: Display Degrees - Decimal Minutes instead of Decimal Degrees
+        precision: 4, // Lat and Lon precision
         zoomInterval: [
             {start: 2, end: 2, interval: 40},
             {start: 3, end: 3, interval: 20},
@@ -187,19 +189,57 @@ L.LatLngGraticule = L.Layer.extend({
         L.DomUtil.setOpacity(this._canvas, this.options.opacity);
     },
 
+    // todo: Decimal degrees to Degrees - Decimal Minutes
+    __deg_to_dmd: function(deg) {
+
+        var d = Math.floor (deg);
+        var minfloat = (deg - d) * 60;
+        var min = minfloat.toFixed(1);
+
+        if (min == 60.0) {
+            d ++;
+            min = 0.0;
+        }
+
+        if (min == 0.0){
+            return ('' + d + '°');
+        }
+
+        if ((min % 1).toFixed(1) == 0.0) {
+            min = minfloat.toFixed(0).toString(10).padStart(2, '0');
+        }
+        else {
+            min = minfloat.toFixed(1).toString(10).padStart(4, '0');
+        }
+        
+        return ('' + d + '°' + min + "'");
+    },
+
     __format_lat: function(lat) {
         if (this.options.latFormatTickLabel) {
             return this.options.latFormatTickLabel(lat);
         }
 
-        // todo: format type of float
-        if (lat < 0) {
-            return '' + (lat*-1) + 'S';
+        if (this.options.dmd) {
+            if (lat < 0) {
+                return this.__deg_to_dmd(lat * -1) + ' S';
+            }
+            else if (lat > 0) {
+                return this.__deg_to_dmd(lat) + ' N';
+            }
+            return this.__deg_to_dmd(lat);
         }
-        else if (lat > 0) {
-            return '' + lat + 'N';
+        else {
+            // todo: format type of float
+            if (lat < 0) {
+                return '' + (lat*-1).toFixed(this.options.precision) + 'S';
+            }
+            else if (lat > 0) {
+                return '' + lat.toFixed(this.options.precision) + 'N';
+            }
+            return '' + lat.toFixed(this.options.precision);
+
         }
-        return '' + lat;
     },
 
     __format_lng: function(lng) {
@@ -207,23 +247,44 @@ L.LatLngGraticule = L.Layer.extend({
             return this.options.lngFormatTickLabel(lng);
         }
 
-        // todo: format type of float
-        if (lng > 180) {
-            return '' + (360 - lng) + 'W';
+        if (this.options.dmd) {
+            // todo: format type of float
+            if (lng > 180) {
+                return this.__deg_to_dmd(360 - lng) + ' W';
+            }
+            else if (lng > 0 && lng < 180) {
+                return this.__deg_to_dmd(lng) + ' E';
+            }
+            else if (lng < 0 && lng > -180) {
+                return this.__deg_to_dmd(lng*-1) + ' W';
+            }
+            else if (lng == -180) {
+                return this.__deg_to_dmd(lng*-1);
+            }
+            else if (lng < -180) {
+                return '' + this.__deg_to_dmd(360 + lng) + ' W';
+            }
+            return this.__deg_to_dmd(lng);            
         }
-        else if (lng > 0 && lng < 180) {
-            return '' + lng + 'E';
+        else {
+            // todo: format type of float
+            if (lng > 180) {
+                return '' + (360 - lng).toFixed(this.options.precision) + 'W';
+            }
+            else if (lng > 0 && lng < 180) {
+                return '' + lng.toFixed(this.options.precision) + 'E';
+            }
+            else if (lng < 0 && lng > -180) {
+                return '' + (lng*-1).toFixed(this.options.precision) + 'W';
+            }
+            else if (lng == -180) {
+                return '' + (lng*-1).toFixed(this.options.precision);
+            }
+            else if (lng < -180) {
+                return '' + (360 + lng).toFixed(this.options.precision) + 'W';
+            }
+            return '' + lng.toFixed(this.options.precision);
         }
-        else if (lng < 0 && lng > -180) {
-            return '' + (lng*-1) + 'W';
-        }
-        else if (lng == -180) {
-            return '' + (lng*-1);
-        }
-        else if (lng < -180) {
-            return '' + (360 + lng) + 'W';
-        }
-        return '' + lng;
     },
 
     __calcInterval: function() {
@@ -419,7 +480,7 @@ L.LatLngGraticule = L.Layer.extend({
                     ctx.lineTo(rr.x-1, rr.y);
                     ctx.stroke();
                     if (self.options.showLabel && label) {
-                        var _yy = ll.y + (txtHeight/2)-2;
+                        var _yy = ll.y - (txtHeight/2) + 2;
                         ctx.fillText(latstr, 0, _yy);
                         ctx.fillText(latstr, ww-txtWidth, _yy);
                     }
@@ -490,8 +551,8 @@ L.LatLngGraticule = L.Layer.extend({
                     ctx.stroke();
 
                     if (self.options.showLabel && label) {
-                        ctx.fillText(lngstr, tt.x - (txtWidth/2), txtHeight+1);
-                        ctx.fillText(lngstr, bb.x - (txtWidth/2), hh-3);
+                        ctx.fillText(lngstr, tt.x + 3, txtHeight+1);
+                        ctx.fillText(lngstr, bb.x + 3, hh-3);
                     }
                 }
             };
