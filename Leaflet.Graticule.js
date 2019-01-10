@@ -262,7 +262,7 @@ L.LatLngGraticule = L.Layer.extend({
                 return this.__deg_to_dmd(lng*-1);
             }
             else if (lng < -180) {
-                return '' + this.__deg_to_dmd(360 + lng) + ' W';
+                return '' + this.__deg_to_dmd(360 + lng) + ' E';
             }
             return this.__deg_to_dmd(lng);            
         }
@@ -281,7 +281,7 @@ L.LatLngGraticule = L.Layer.extend({
                 return '' + (lng*-1).toFixed(this.options.precision);
             }
             else if (lng < -180) {
-                return '' + (360 + lng).toFixed(this.options.precision) + 'W';
+                return '' + (360 + lng).toFixed(this.options.precision) + 'E';
             }
             return '' + lng.toFixed(this.options.precision);
         }
