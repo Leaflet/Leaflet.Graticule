@@ -54,8 +54,8 @@ Or
 - **color**: The color of the graticule lines. Default `#aaa`
 - **font**: Font Style for the tick label. Default `12px Verdana`
 - **fontColor**: Color of the tick label. Default `#aaa`
-- **precision**: Decimal Degrees precision. Default `4`
-- **dmd**: Display Degrees and Decimal minutes instead of Decimal Degrees. Default: `false`
+- **format**: Format of labels. Possible values: `dd` for Decimal Degrees, `dmd` for Degrees Decimal Minutes and `dms` for Degrees Minutes Seconds. Default `dd` 
+- **precision**: Decimal Degrees precision if format is `dd`. Default `4`
 - **zoomInterval**: Use different intervals in different zoom levels. You can set for both latitude and longitude lines as the example, or set different intervals for latitude and longitude like below:
 ```javascript
   zoomInterval: {
