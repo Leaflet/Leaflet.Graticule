@@ -13,6 +13,8 @@ L.LatLngGraticule = L.Layer.extend({
         font: '12px Verdana',
         lngLineCurved: 0,
         latLineCurved: 0,
+        format: 'dd', // dd: decimal degrees; dmd: degrees - Decimal minutes; dms: Degrees Minutes Seconds; default 'dd'
+        precision: 4, // Lat and Lon precision
         zoomInterval: [
             {start: 2, end: 2, interval: 40},
             {start: 3, end: 3, interval: 20},
@@ -187,43 +189,135 @@ L.LatLngGraticule = L.Layer.extend({
         L.DomUtil.setOpacity(this._canvas, this.options.opacity);
     },
 
+    // todo: Decimal degrees to Degrees Minutes Seconds
+    __deg_to_dms: function(deg) {
+        var degrees = Math.floor (deg);
+        var minfloat = (deg - degrees) * 60;
+        var min = Math.floor(minfloat);
+        var secfloat = (minfloat-min)*60;
+        var sec = Math.round(secfloat);
+
+        if (sec==60) {
+            min++;
+            sec=0;
+        }
+        if (min==60) {
+            degrees++;
+            min=0;
+        }
+
+        return ('' + degrees + '°' + min.toString(10).padStart(2, '0') + "'" + sec.toString(10).padStart(2, '0') + '"');
+    },
+
+    // todo: Decimal degrees to Degrees - Decimal Minutes
+    __deg_to_dmd: function(deg) {
+
+        var degrees = Math.floor (deg);
+        var minfloat = (deg - degrees) * 60;
+        var min = minfloat.toFixed(1);
+
+        if (min == 60.0) {
+            degrees ++;
+            min = 0.0;
+        }
+
+        if (min == 0.0){
+            return ('' + degrees + '°');
+        }
+
+        if ((min % 1).toFixed(1) == 0.0) {
+            min = minfloat.toFixed(0).toString(10).padStart(2, '0');
+        }
+        else {
+            min = minfloat.toFixed(1).toString(10).padStart(4, '0');
+        }
+        
+        return ('' + degrees + '°' + min + "'");
+    },
+
     __format_lat: function(lat) {
         if (this.options.latFormatTickLabel) {
             return this.options.latFormatTickLabel(lat);
         }
 
-        // todo: format type of float
-        if (lat < 0) {
-            return '' + (lat*-1) + 'S';
+        switch (this.options.format) {
+            case 'dmd':
+                if (lat < 0) {
+                    return this.__deg_to_dmd(lat * -1) + ' S';
+                }
+                else if (lat > 0) {
+                    return this.__deg_to_dmd(lat) + ' N';
+                }
+                return this.__deg_to_dmd(lat);
+
+            case 'dms':
+                if (lat < 0) {
+                    return this.__deg_to_dms(lat * -1) + ' S';
+                }
+                else if (lat > 0) {
+                    return this.__deg_to_dms(lat) + ' N';
+                }
+                return this.__deg_to_dms(lat);
+
+            default:
+                // todo: format type of float
+                if (lat < 0) {
+                    return '' + (lat*-1).toFixed(this.options.precision) + ' S';
+                }
+                else if (lat > 0) {
+                    return '' + lat.toFixed(this.options.precision) + ' N';
+                }
+                return '' + lat.toFixed(this.options.precision);                
         }
-        else if (lat > 0) {
-            return '' + lat + 'N';
-        }
-        return '' + lat;
     },
 
-    __format_lng: function(lng) {
+    __format_lng: function(lng, wrapLng) {
         if (this.options.lngFormatTickLabel) {
             return this.options.lngFormatTickLabel(lng);
         }
 
-        // todo: format type of float
-        if (lng > 180) {
-            return '' + (360 - lng) + 'W';
+        switch (this.options.format) {
+
+            case 'dmd':
+                // todo: format type of float
+                if (lng > 0 && lng < wrapLng[1]) {
+                    return this.__deg_to_dmd(lng) + ' E';
+                }
+                else if (lng < 0 && lng > wrapLng[0]) {
+                    return this.__deg_to_dmd(lng*-1) + ' W';
+                }
+                else if (lng == wrapLng[0]) {
+                    return this.__deg_to_dmd(lng*-1);
+                }
+                return this.__deg_to_dmd(lng);
+
+            case 'dms':
+                // todo: format type of float
+                if (lng > 0 && lng < wrapLng[1]) {
+                    return this.__deg_to_dms(lng) + ' E';
+                }
+                else if (lng < 0 && lng > wrapLng[0]) {
+                    return this.__deg_to_dms(lng*-1) + ' W';
+                }
+                else if (lng == wrapLng[0]) {
+                    return this.__deg_to_dms(lng*-1);
+                }
+                return this.__deg_to_dms(lng);
+
+            default:
+                // todo: format type of float
+                if (lng > 0 && lng < wrapLng[1]) {
+                    return '' + lng.toFixed(this.options.precision) + ' E';
+                }
+                else if (lng < 0 && lng > wrapLng[0]) {
+                    return '' + (lng*-1).toFixed(this.options.precision) + ' W';
+                }
+                else if (lng == wrapLng[0]) {
+                    return '' + (lng*-1).toFixed(this.options.precision);
+                }
+                return '' + lng.toFixed(this.options.precision);
+
         }
-        else if (lng > 0 && lng < 180) {
-            return '' + lng + 'E';
-        }
-        else if (lng < 0 && lng > -180) {
-            return '' + (lng*-1) + 'W';
-        }
-        else if (lng == -180) {
-            return '' + (lng*-1);
-        }
-        else if (lng < -180) {
-            return '' + (360 + lng) + 'W';
-        }
-        return '' + lng;
     },
 
     __calcInterval: function() {
@@ -419,7 +513,7 @@ L.LatLngGraticule = L.Layer.extend({
                     ctx.lineTo(rr.x-1, rr.y);
                     ctx.stroke();
                     if (self.options.showLabel && label) {
-                        var _yy = ll.y + (txtHeight/2)-2;
+                        var _yy = ll.y - (txtHeight/2) + 2;
                         ctx.fillText(latstr, 0, _yy);
                         ctx.fillText(latstr, ww-txtWidth, _yy);
                     }
@@ -440,7 +534,12 @@ L.LatLngGraticule = L.Layer.extend({
             }
 
             function __draw_lon_line(self, lon_tick) {
-                lngstr = self.__format_lng(lon_tick);
+                wrappedlng = map.options.crs.wrapLatLng(L.latLng(0, lon_tick)).lng;
+                
+                //Lng range
+                wrapLng = map.options.crs.wrapLng
+
+                lngstr = self.__format_lng(wrappedlng, wrapLng);
                 txtWidth = ctx.measureText(lngstr).width;
                 var bb = map.latLngToContainerPoint(L.latLng(_lat_b, lon_tick));
 
@@ -490,8 +589,8 @@ L.LatLngGraticule = L.Layer.extend({
                     ctx.stroke();
 
                     if (self.options.showLabel && label) {
-                        ctx.fillText(lngstr, tt.x - (txtWidth/2), txtHeight+1);
-                        ctx.fillText(lngstr, bb.x - (txtWidth/2), hh-3);
+                        ctx.fillText(lngstr, tt.x + 3, txtHeight+1);
+                        ctx.fillText(lngstr, bb.x + 3, hh-3);
                     }
                 }
             };
