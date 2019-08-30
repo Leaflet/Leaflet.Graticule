@@ -18,12 +18,15 @@
             lngLineCurved: 0,
             latLineCurved: 0,
             zoomInterval: [
-                {start: 0, end: 4, interval: 40},
-                {start: 4, end: 6, interval: 10},
-                {start: 6, end: 8, interval: 5},
-                {start: 8, end: 10, interval: 1},
-                {start: 10, end: 12, interval: 0.2},
-                {start: 12, end: 16, interval: 0.1}
+                {start: 0, end: 3.5, interval: 45},
+                {start: 3.5, end: 5, interval: 15},
+                {start: 5, end: 6.5, interval: 5},
+                {start: 6.5, end: 9, interval: 1},
+                {start: 9, end: 10, interval: 0.5},
+                {start: 10, end: 11.5, interval: 0.2},
+                {start: 11.5, end: 12.5, interval: 0.1},
+                {start: 12.5, end: 13.5, interval: 0.05},
+                {start: 13.5, end: 16, interval: 0.01}
             ]
         },
 
@@ -180,39 +183,34 @@
             L.DomUtil.setOpacity(this._canvas, this.options.opacity);
         },
 
-        __format_lat: function (lat) {
-            if (this.options.latFormatTickLabel) {
-                return this.options.latFormatTickLabel(lat);
+        __format_lat: function (latitude) {
+            let suffix = '';
+
+            if (latitude < 0) {
+                suffix = 'S';
+            } else if (latitude > 0) {
+                suffix = 'N';
             }
 
-            // todo: format type of float
-            if (lat < 0) {
-                lat = (lat * -1).toFixed(2) + 'S';
-            } else if (lat > 0) {
-                lat = lat.toFixed(2) + 'N';
-            } else {
-                return lat.toFixed(2);
-            }
+            return latitude.toFixed(3).replace(/(\.0+|0+)$/, '') + suffix;
         },
 
-        __format_lng: function (lng) {
-            if (this.options.lngFormatTickLabel) {
-                return this.options.lngFormatTickLabel(lng);
+        __format_lng: function (longitude) {
+            let suffix = '';
+
+            if ((longitude < 0 && longitude > -180) || longitude > 180) {
+                suffix = 'W';
+                if (longitude > 180) {
+                    longitude = 360 - longitude;
+                }
+            } else if (longitude > 0 && longitude < 180 || longitude < -180) {
+                suffix = 'E';
+                if (longitude < -180) {
+                    longitude += 360;
+                }
             }
 
-            // todo: format type of float
-            if (lng > 180) {
-                return (360 - lng).toFixed(2) + 'W';
-            } else if (lng > 0 && lng < 180) {
-                return lng.toFixed(2) + 'E';
-            } else if (lng < 0 && lng > -180) {
-                return (lng * -1).toFixed(2) + 'W';
-            } else if (lng === -180) {
-                return (lng * -1).toFixed(2);
-            } else if (lng < -180) {
-                return (360 + lng).toFixed(2) + 'W';
-            }
-            return lng.toFixed(2);
+            return Math.abs(longitude).toFixed(3).replace(/(\.0+|0+)$/, '') + suffix;
         },
 
         __calcInterval: function () {
@@ -223,12 +221,10 @@
                 this._currZoom = zoom;
             }
 
-            let interv;
-
             if (!this._currLngInterval) {
                 try {
-                    for (let idx in this.options.lngInterval) {
-                        let dict = this.options.lngInterval[idx];
+                    for (let interval_index in this.options.lngInterval) {
+                        let dict = this.options.lngInterval[interval_index];
                         if (dict.start <= zoom) {
                             if (dict.end && dict.end >= zoom) {
                                 this._currLngInterval = dict.interval;
