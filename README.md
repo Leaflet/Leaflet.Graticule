@@ -2,10 +2,9 @@ leaflet.latlng-graticule
 ===========================
 
 Create a Canvas as ImageOverlay to draw the Lat/Lon Graticule,
-
 and show the grid tick label at the edges of the map.
 
-Check out the [demo](https://cloudybay.github.io/leaflet.latlng-graticule/example/).
+Check out the [demo](https://leaflet.github.io/Leaflet.Graticule/example/).
 
 
 ### Usage example
