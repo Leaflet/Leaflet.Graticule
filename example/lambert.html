@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <title>Leaflet Graticule</title>
@@ -48,7 +48,7 @@
         maxBounds: [[-20, 40], [60, 180]]
     }).setView([25, 121], 4);
 
-    let countries = L.geoJson.ajax('data/countries-110m.json', {
+    let countries = L.geoJson.ajax('data/countries.geojson', {
         style: {
             color: '#000',
             weight: 0.5,
@@ -64,7 +64,6 @@
     });
 
     map.addLayer(countries);
-
     map.addLayer(graticule);
 </script>
 </html>

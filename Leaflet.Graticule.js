@@ -16,15 +16,12 @@ L.LatLngGraticule = L.Layer.extend({
         lngLineCurved: 0,
         latLineCurved: 0,
         zoomInterval: [
-            {start: 0, end: 3.5, interval: 45},
-            {start: 3.5, end: 5, interval: 15},
+            {start: 0, end: 4, interval: 45},
+            {start: 4, end: 5, interval: 15},
             {start: 5, end: 7, interval: 5},
             {start: 7, end: 9, interval: 1},
             {start: 9, end: 10, interval: 0.5},
-            {start: 10, end: 11.5, interval: 0.2},
-            {start: 11.5, end: 12.5, interval: 0.1},
-            {start: 12.5, end: 14, interval: 0.05},
-            {start: 14, end: 16, interval: 0.01}
+            {start: 10, end: 16, interval: 0.1}
         ]
     },
 
