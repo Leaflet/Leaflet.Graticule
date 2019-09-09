@@ -63,7 +63,7 @@ L.LatLngGraticule = L.Layer.extend({
     onAdd: function (map) {
         this._map = map;
 
-        if (!this._canvas) {
+        if (this._canvas == null) {
             this._initCanvas();
         }
 
@@ -270,7 +270,7 @@ L.LatLngGraticule = L.Layer.extend({
             curvedLat = this.options.latLineCurved;
 
         if (L.Browser.canvas && map) {
-            if (!this._currLngInterval || !this._currLatInterval) {
+            if (this._currLngInterval == null || this._currLatInterval == null) {
                 this.__calcInterval();
             }
 
