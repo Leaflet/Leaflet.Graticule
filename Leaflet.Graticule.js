@@ -21,7 +21,9 @@ L.LatLngGraticule = L.Layer.extend({
             {start: 5, end: 7, interval: 5},
             {start: 7, end: 9, interval: 1},
             {start: 9, end: 10, interval: 0.5},
-            {start: 10, end: 16, interval: 0.1}
+            {start: 10, end: 12, interval: 0.1},
+            {start: 12, end: 16, interval: 0.05},
+            {start: 16, end: 18, interval: 0.01}
         ]
     },
 
