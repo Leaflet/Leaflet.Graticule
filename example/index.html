@@ -1,47 +1,49 @@
 <!doctype html>
 <html lang="en">
 <head>
-	<title>Leaflet Lat/Lon Graticule Demo</title>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Leaflet Lat/Lon Graticule Demo</title>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
 
-<link href="https://unpkg.com/leaflet@1.0.0/dist/leaflet.css" rel="stylesheet" type="text/css" />
-<script src="https://unpkg.com/leaflet@1.0.0/dist/leaflet-src.js"></script>
+    <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            background: #fff;
+        }
+    </style>
 
-<script src="../Leaflet.Graticule.js"></script>
+    <link crossorigin="anonymous" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+          integrity="sha384-eS4bw6aEvhCSXWGP85ANR/N8isWKzT7P36NvcuTJGkrj6wsbxLVpXslrNXYHyseD" rel="stylesheet">
+    <script crossorigin="anonymous" integrity="sha384-bmPowDlt+owc6Mn3LwOzLPkYiVm6MuKeLMe0qN2pp7Fhmux2xtVJm5e+ekpCVv4x"
+            src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"></script>
 
-	<style>
-		html { height: 100%; }
-		body { height: 100%; margin: 0; padding: 0;}
-		.map { width: 800px; height: 600px; }
-	</style>
+    <script crossorigin="anonymous" integrity="sha384-MBqvFhoifV/e9S1Ca7DFfXtEHZAYgSiDw5ek8a6BcgVfQdctO9SKp6ueQGC3PSiO"
+            src="https://unpkg.com/leaflet-providers@1.8.0/leaflet-providers.js"></script>
+
+    <script src="../Leaflet.Graticule.js"></script>
 </head>
 <body>
-	<div id="map" class="map"></div>
-
-	<div>
-	</div>
-
-	<script>
-		var map = new L.Map('map',{zoomControl:false}).setView([24.0, 121], 6),
-
-			stamenTerrain = L.tileLayer('http://{s}.tile.stamen.com/terrain/{z}/{x}/{y}.png').addTo(map);
-
-		L.latlngGraticule({
-			showLabel: true,
-			color: '#222',
-			zoomInterval: [
-				{start: 2, end: 3, interval: 30},
-				{start: 4, end: 4, interval: 10},
-				{start: 5, end: 7, interval: 5},
-				{start: 8, end: 10, interval: 1}
-			]
-		}).addTo(map);
-
-// 		console.log(map.options.crs);
-
-	</script>
-
+<div id="map"></div>
 </body>
+<script async>
+    let map = new L.Map('map', {zoomControl: false}).setView([24.0, 121], 6);
+    map.addLayer(L.tileLayer.provider('Stamen.Terrain'));
+
+    map.addLayer(L.latlngGraticule({
+        showLabel: true,
+        color: '#222',
+        dashArray: [5, 5],
+        zoomInterval: [
+            {start: 0, end: 4, interval: 45},
+            {start: 4, end: 5, interval: 15},
+            {start: 5, end: 7, interval: 5},
+            {start: 7, end: 9, interval: 1},
+            {start: 9, end: 10, interval: 0.5},
+            {start: 10, end: 16, interval: 0.1}
+        ]
+    }));
+</script>
 </html>
